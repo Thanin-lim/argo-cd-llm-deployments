@@ -47,7 +47,6 @@ metadata:
 spec:
   selector:
     app: minio
-  type: ClusterIP
   ports:
     - name: console
       protocol: TCP
