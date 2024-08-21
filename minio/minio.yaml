@@ -47,13 +47,18 @@ metadata:
 spec:
   selector:
     app: minio
+  type: NodePort
   ports:
     - name: console
       protocol: TCP
       port: 9000
       targetPort: 9000
+      nodePort: 31900
     - name: management
       protocol: TCP
       port: 31901
       targetPort: 31901
+      nodePort: 31901
+  # Optionally specify a range for nodePort if needed
+
 
