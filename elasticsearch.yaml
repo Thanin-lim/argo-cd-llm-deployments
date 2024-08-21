@@ -1,0 +1,332 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-0-data-pv
+spec:
+  storageClassName: nfs
+  claimRef:
+    name: elasticsearch-0-data-pvc
+    namespace: search-engine
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /K8s/Volumes/elasticsearch-1
+    server: 192.168.150.152
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-0-data-pvc
+  namespace: search-engine
+spec:
+  storageClassName: nfs
+  volumeName: elasticsearch-0-data-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-0
+  namespace: search-engine
+  labels:
+    app: elasticsearch-0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-0
+  serviceName: elasticsearch-0
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-0
+    spec:
+      volumes:
+        - name: elasticsearch-storage
+          persistentVolumeClaim:
+            claimName: elasticsearch-0-data-pvc
+      containers:
+        - name: elasticsearch-0
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          env:
+            - name: cluster.name
+              value: elasticsearch-cluster
+            - name: node.name
+              value: elasticsearch-0-0
+            - name: discovery.type
+              value: multi-node
+            - name: bootstrap.memory_lock
+              value: "false"
+            - name: xpack.ml.enabled
+              value: "false"
+            - name: xpack.security.enabled
+              value: "false"
+            - name: discovery.seed_hosts
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+            - name: cluster.initial_master_nodes
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+          resources:
+            requests:
+              cpu: 4
+              memory: 12Gi
+            limits:
+              cpu: 4
+              memory: 12Gi
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-0-0
+  namespace: search-engine
+spec:
+  selector:
+    app: elasticsearch-0
+  type: NodePort
+  ports:
+    - name: elastic-api
+      protocol: TCP
+      port: 9200
+      targetPort: 9200 
+      nodePort: 30201
+    - name: elastic-cluster
+      protocol: TCP
+      port: 9300
+      targetPort: 9300 
+      nodePort: 30301
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-1-data-pv
+spec:
+  storageClassName: nfs
+  claimRef:
+    name: elasticsearch-1-data-pvc
+    namespace: search-engine
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /K8s/Volumes/elasticsearch-2
+    server: 192.168.150.152
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-1-data-pvc
+  namespace: search-engine
+spec:
+  storageClassName: nfs
+  volumeName: elasticsearch-1-data-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-1
+  namespace: search-engine
+  labels:
+    app: elasticsearch-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-1
+  serviceName: elasticsearch-1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-1
+    spec:
+      volumes:
+        - name: elasticsearch-storage
+          persistentVolumeClaim:
+            claimName: elasticsearch-1-data-pvc
+      containers:
+        - name: elasticsearch-1
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          env:
+            - name: cluster.name
+              value: elasticsearch-cluster
+            - name: node.name
+              value: elasticsearch-1-0
+            - name: discovery.type
+              value: multi-node
+            - name: bootstrap.memory_lock
+              value: "false"
+            - name: xpack.ml.enabled
+              value: "false"
+            - name: xpack.security.enabled
+              value: "false"
+            - name: discovery.seed_hosts
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+            - name: cluster.initial_master_nodes
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+          resources:
+            requests:
+              cpu: 4
+              memory: 12Gi
+            limits:
+              cpu: 4
+              memory: 12Gi
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-1-0
+  namespace: search-engine
+spec:
+  selector:
+    app: elasticsearch-1
+  type: NodePort
+  ports:
+    - name: elastic-api
+      protocol: TCP
+      port: 9200
+      targetPort: 9200 
+      nodePort: 30202
+    - name: elastic-cluster
+      protocol: TCP
+      port: 9300
+      targetPort: 9300 
+      nodePort: 30302
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-2-data-pv
+spec:
+  storageClassName: nfs
+  claimRef:
+    name: elasticsearch-2-data-pvc
+    namespace: search-engine
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /K8s/Volumes/elasticsearch-3
+    server: 192.168.150.152
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-2-data-pvc
+  namespace: search-engine
+spec:
+  storageClassName: nfs
+  volumeName: elasticsearch-2-data-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-2
+  namespace: search-engine
+  labels:
+    app: elasticsearch-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-2
+  serviceName: elasticsearch-2
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-2
+    spec:
+      volumes:
+        - name: elasticsearch-storage
+          persistentVolumeClaim:
+            claimName: elasticsearch-2-data-pvc
+      containers:
+        - name: elasticsearch-2
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          env:
+            - name: cluster.name
+              value: elasticsearch-cluster
+            - name: node.name
+              value: elasticsearch-2-0
+            - name: discovery.type
+              value: multi-node
+            - name: bootstrap.memory_lock
+              value: "false"
+            - name: xpack.ml.enabled
+              value: "false"
+            - name: xpack.security.enabled
+              value: "false"
+            - name: discovery.seed_hosts
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+            - name: cluster.initial_master_nodes
+              value: elasticsearch-0-0,elasticsearch-1-0,elasticsearch-2-0
+          resources:
+            requests:
+              cpu: 4
+              memory: 12Gi
+            limits:
+              cpu: 4
+              memory: 12Gi
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-2-0
+  namespace: search-engine
+spec:
+  selector:
+    app: elasticsearch-2
+  type: NodePort
+  ports:
+    - name: elastic-api
+      protocol: TCP
+      port: 9200
+      targetPort: 9200 
+      nodePort: 30203
+    - name: elastic-cluster
+      protocol: TCP
+      port: 9300
+      targetPort: 9300 
+      nodePort: 30303
