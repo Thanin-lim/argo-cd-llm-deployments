@@ -47,6 +47,7 @@ metadata:
 spec:
   selector:
     app: minio
+  type: NodePort
   ports:
     - name: console
       protocol: TCP
